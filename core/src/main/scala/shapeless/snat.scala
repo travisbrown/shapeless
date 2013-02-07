@@ -25,9 +25,7 @@ class SNat[N](val value: Int) extends AnyVal {
 }
 
 object SNat {
-  def apply(i: Int): Any = macro SNatMacros.explicitSNat
-
-  implicit def intToNat[N](i: Int) : SNat[N] = macro SNatMacros.implicitSNat[N]
+  implicit def apply[N](i: Int): SNat[N] = macro SNatMacros.explicitSNat
 
   implicit def natToInt[N](snat: SNat[N]): Int = snat.value
 
@@ -48,15 +46,6 @@ trait SNatMacros extends Macro {
 
   def explicitSNat(i: c.Expr[Int]) = {
 
-    i.tree match {
-      case Literal(Constant(i: Int)) =>
-        val N = TypeTree(ConstantType(Constant(i)))
-        c.Expr(q"new SNat[$N]($i)")
-      case _ => c.abort(c.enclosingPosition, "Argument must be an Int literal")
-    }
-  }
-
-  def implicitSNat[N](i: c.Expr[Int]) = {
     i.tree match {
       case Literal(Constant(i: Int)) =>
         val N = TypeTree(ConstantType(Constant(i)))
