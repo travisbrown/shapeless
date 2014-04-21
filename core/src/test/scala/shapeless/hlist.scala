@@ -1352,4 +1352,13 @@ class HListTests {
     illTyped("orig.tail.values.zipWithKeys(orig.keys)")
     illTyped("orig.values.zipWithKeys(orig.keys.tail)")
   }
+
+  @Test
+  def testFill {
+    val manual = 1 :: 1 :: 1 :: HNil
+    val filled = HList.fill[Int, shapeless.nat._3](1)
+
+    sameTyped(manual)(filled)
+    assertEquals(manual, filled)
+  }
 }
