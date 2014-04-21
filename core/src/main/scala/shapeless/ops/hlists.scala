@@ -1581,4 +1581,32 @@ object hlist {
               field[wkh.T](v.head) :: zipWithKeys(k.tail, v.tail)
           }
   }
+
+  /**
+   * Type class supporting creation of an `HList` of a given length filled with a constant value.
+   *
+   * @author Travis Brown
+   */
+  trait Filler[A, N <: Nat] extends DepFn1[A] { type Out <: HList }
+
+  object Filler {
+    import shapeless.nat._0
+
+    def apply[A, N <: Nat]
+      (implicit filler: Filler[A, N]): Aux[A, N, filler.Out] = filler
+
+    type Aux[A, N <: Nat, Out0 <: HList] = Filler[A, N] { type Out = Out0 }
+
+    implicit def hnilFiller[A]: Aux[A, _0, HNil] = new Filler[A, _0] {
+      type Out = HNil
+      def apply(a: A) = HNil
+    }
+
+    implicit def hconsFiller[A, M <: Nat, OutT <: HList]
+      (implicit filler: Aux[A, M, OutT]): Aux[A, Succ[M], A :: OutT] =
+        new Filler[A, Succ[M]] {
+          type Out = A :: OutT
+          def apply(a: A): Out = a :: filler(a)
+        }
+  }
 }
